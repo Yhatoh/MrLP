@@ -39,6 +39,8 @@ class FSM {
   private:
     std::map< std::string, 
               std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > > subexpr;
+    
+    bool check_aux(std::string str, int i, Node* act_node);
   public:
     Node* start;
     Node* end;
@@ -53,6 +55,6 @@ class FSM {
     //void clear();
     //void set_expr(string expr);
     void create_fsm(std::string tag_scope, std::string expr, Node* act_start, Node* act_end);
+    bool check(std::string str);
     friend std::ostream& operator<<(std::ostream& os, const FSM &fsm);
-    //bool check(string str);
 };
