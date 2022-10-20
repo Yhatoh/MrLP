@@ -1,23 +1,60 @@
 // Cpp include(s)
 #include <vector>
+#include <string>
 
 // Local include(s)
 #include <RegEx.hpp>
 
 RegEx::RegEx() {}
-RegEx::RegEx(string expr_) expr(expr_) : {}
-
-void RegEx::set_expr(string expr_) { expr = expr_ }
-string RegEx::get_expr() { return expr }
-
-uint64_t RegEx::first_match(string str){
-  
+RegEx::RegEx(std::string expr_) {
+  fsm = new FSM(expr_); 
 }
 
-uint64_t RegEx::match(string str, uint64_t i){
-
+void RegEx::set_expr(std::string expr_) { 
+  delete fsm;
+  fsm = new FSM(expr_);
 }
 
-vector< uint64_t > RegEx::full_match(string str){
+//std::string RegEx::get_expr() { return expr }
 
+uint64_t RegEx::first_match(std::string str) {
+  for(uint64_t j = 0; j < str.length(); j++) {
+    for(uint64_t k = str.length() - 1; k > 0; k--) {
+      if(fsm->check(str.substr(j, k))) {
+        return j;
+      } 
+    }
+  }  
+  return str.length();
+}
+
+uint64_t RegEx::match(std::string str, uint64_t i) {
+  uint64_t ith = 0;
+  for(uint64_t j = 0; j < str.length(); j++) {
+    for(uint64_t k = str.length() - j; k > 0; k--) {
+      if(fsm->check(str.substr(j, k))) {
+        ith++;
+        if(ith == i) {
+          return j;
+        }
+        j += k - 1;
+        break;
+      } 
+    }
+  }  
+  return str.length();
+}
+
+std::vector< uint64_t > RegEx::full_match(std::string str){
+  std::vector< uint64_t > ret;
+  for(uint64_t j = 0; j < str.length(); j++) {
+    for(uint64_t k = str.length() - j; k > 0; k--) {
+      if(fsm->check(str.substr(j, k))) {
+        ret.push_back(j);
+        j += k - 1;
+        break;
+      } 
+    }
+  }
+  return ret;
 }
