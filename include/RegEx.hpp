@@ -13,8 +13,12 @@ class RegEx {
     RegEx();
     RegEx(std::string expr_);
 
+    ~RegEx();
+
+    void clear();
+
     void set_expr(std::string expr_);
-    //std::string get_expr();
+    FSM* get_expr();
 
     // get the position of the first match of expr in str
     uint64_t first_match(std::string str);

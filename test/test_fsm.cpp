@@ -16,5 +16,7 @@ int main(){
     std::cout << e << " "; 
   }
   std::cout << "\n";
+  std::cout << fsm.num_edges << "\n";
+  std::cout << fsm.num_states << "\n";
   return 0;
 }

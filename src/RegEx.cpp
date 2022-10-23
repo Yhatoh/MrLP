@@ -10,12 +10,21 @@ RegEx::RegEx(std::string expr_) {
   fsm = new FSM(expr_); 
 }
 
+RegEx::~RegEx() {
+  clear();
+}
+
+void RegEx::clear() {
+  fsm->clear();
+  delete fsm;
+}
+
 void RegEx::set_expr(std::string expr_) { 
   delete fsm;
   fsm = new FSM(expr_);
 }
 
-//std::string RegEx::get_expr() { return expr }
+FSM* RegEx::get_expr() { return fsm; }
 
 uint64_t RegEx::first_match(std::string str) {
   for(uint64_t j = 0; j < str.length(); j++) {

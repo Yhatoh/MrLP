@@ -21,6 +21,7 @@ class Node {
   public:
     Node();
     Node(std::string label, uint64_t num_edges);
+
     void add_edge(char transition, Node* dest);
     
     // getters
@@ -35,11 +36,18 @@ class Node {
 
 };
 
+struct SubExpr {
+  std::string label;
+  Node* start;
+  Node* end;
+};
+
 class FSM {
   private:
-    std::map< std::string, 
-              std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > > subexpr;
-    
+    //std::map< std::string, 
+    //          std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > > subexpr;
+    uint64_t amount_expr;
+    SubExpr* subexpr;
     bool check_aux(std::string str, int i, Node* act_node);
   public:
     Node* start;
@@ -50,9 +58,9 @@ class FSM {
     FSM();
     FSM(std::string expr);
 
-    //~FSM();
+    ~FSM();
     
-    //void clear();
+    void clear();
     //void set_expr(string expr);
     void create_fsm(std::string tag_scope, std::string expr, Node* act_start, Node* act_end);
     bool check(std::string str);

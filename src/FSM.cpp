@@ -68,11 +68,47 @@ void Node::set_label(std::string label_) {
 }
 
 FSM::FSM(std::string expr) {
+  num_states = 0;
+  num_edges = 0;
+  amount_expr = 0;
+  subexpr = new SubExpr[0];
   start = new Node();
   end = new Node();
   create_fsm("0_", expr, start, end);
 }
 
+FSM::~FSM() {
+  clear();
+}
+
+void FSM::clear() {
+  /*std::queue< Node > next;
+  next.push(*(start));
+ 
+  Node* to_erase[num_states];
+  
+  uint64_t count = 0;
+  to_erase[count++] = start;
+
+  std::set< std::string > visited;
+  while(count < num_states){
+    Node act = next.front();
+    Edge* edges = act.get_edges();
+    for(uint64_t i = 0; i < act.get_num_edges(); i++) {
+      Edge edge = edges[i];
+      if(visited.find(edge.dest->get_label()) == visited.end()) {
+        visited.insert(edge.dest->get_label());
+        next.push(*(edges[i].dest));
+        to_erase[count++] = edges[i].dest;
+      }
+    }
+    next.pop();
+  }
+  for(uint64_t i = 0; i < num_states; i++) {
+    delete[] to_erase[i]->get_edges();
+    delete to_erase[i];  
+  }*/
+}
 
 void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, Node* act_end) {
   // mantain depth of groups in re
@@ -94,8 +130,20 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
       std::string tag = "$" + std::to_string(count_subexpr) + "$";
       
       expr.replace(l, i - l + 1, tag); 
-      std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > pnodes(substart, subend);
-      subexpr.insert(std::pair< std::string, std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > >(tag, pnodes));
+      //std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > pnodes(substart, subend);
+      //subexpr.insert(std::pair< std::string, std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > >(tag, pnodes));
+      
+      SubExpr* aux = new SubExpr[amount_expr + 1];
+      for(uint64_t i = 0; i < amount_expr; i++) {
+        aux[i] = subexpr[i];
+      } 
+      delete[] subexpr;
+      SubExpr to_add;
+      to_add.label = tag;
+      to_add.start = substart;
+      to_add.end = subend;
+      aux[amount_expr++] = to_add;
+
       count_subexpr++;
       st.pop();
     }
@@ -106,6 +154,7 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
   act_start->set_num_edges(0);
   act_end->set_label(tag_scope + "F");
   act_end->set_num_edges(0);
+  num_states += 2;
 
   Node* act = act_start;
   bool act_end_created = false;
@@ -117,6 +166,9 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
       dest = new Node(tag_scope + std::to_string(count_node++), 0);
       act->add_edge('$', dest);
       act = dest;
+      
+      num_states += 1;
+      num_edges += 2;
 
       i++;
     } else if(i + 1 < expr.length() && expr[i + 1] == '+') {
@@ -129,47 +181,74 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
       dest = new Node(tag_scope + std::to_string(count_node++), 0);
       act->add_edge('$', dest);
       act = dest;
+      
+      num_states += 2;
+      num_edges += 3;
+
       i++;
     } else if(i + 1 < expr.length() && expr[i + 1] == '?') {
       Node* dest = new Node(tag_scope + std::to_string(count_node++), 0);
       act->add_edge('$', dest);
       act->add_edge(expr[i], dest);
-      i++;
       act = dest;
+
+      num_states += 1;
+      num_edges += 2;
+
+      i++;
     } else if(i + 2 < expr.length() && i + 1 < expr.length() && expr[i] == '$' && expr[i + 2] == '$') {
-      std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > subfsm = subexpr.find(expr.substr(i, 3))->second;
-      
+      //std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > subfsm = subexpr.find(expr.substr(i, 3))->second;
+      SubExpr subfsm;
+      std::string to_compare = expr.substr(i, 3);
+      for(uint64_t i = 0; i < amount_expr; i++) {
+        if(to_compare == subexpr[i].label) {
+          subfsm = subexpr[i];
+          break;
+        }
+      }
+
       Node* aux = new Node();
-      aux->set_label(subfsm.first.get()->get_label());
-      aux->set_num_edges(subfsm.first.get()->get_num_edges());
-      aux->set_edges(subfsm.first.get()->get_edges(), aux->get_num_edges());
+      aux->set_label(subfsm.start->get_label());
+      aux->set_num_edges(subfsm.start->get_num_edges());
+      aux->set_edges(subfsm.start->get_edges(), aux->get_num_edges());
 
       act->add_edge('$', aux);
-   
-      act = subfsm.second.get();
+      
+      num_edges++;
+
+      act = subfsm.end;
       if(i + 3 < expr.length() && expr[i + 3] == '+') {
         act->add_edge('$', aux);
         i++;
       } else if(i + 3 < expr.length() && expr[i + 3] == '*') {
         aux->add_edge('$', act); 
-        act->add_edge('$', aux); 
+        act->add_edge('$', aux);
+        num_edges++;
         i++;
       } else if(i + 3 < expr.length() && expr[i + 3] == '?') {
-        aux->add_edge('$', act); 
+        aux->add_edge('$', act);
         i++;
       }
+      num_edges++;
+
       i += 2;
     } else if(expr[i] == '|') {
       act->add_edge('$', act_end);
       act = act_start;
+
+      num_edges++;
     } else {
       Node* dest = new Node(tag_scope + std::to_string(count_node++), 0);
       act->add_edge(expr[i], dest);
       act = dest;
+
+      num_states++;
+      num_edges++;
     }
   } 
 
   act->add_edge('$', act_end);
+  num_edges++;
 }
 
 bool FSM::check(std::string str) {
@@ -201,7 +280,7 @@ std::ostream& operator<<(std::ostream& os, const FSM &fsm) {
   std::set< std::string > visited;
   while(!next.empty()){
     Node act = next.front();
-    std::cout << "Node: " << act.get_label() << " Transitions: ";
+    std::cout << "node: " << act.get_label() << " transitions: ";
     Edge* edges = act.get_edges();
     for(uint64_t i = 0; i < act.get_num_edges(); i++) {
       Edge edge = edges[i];
