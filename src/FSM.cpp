@@ -314,23 +314,6 @@ bool FSM::check(std::string str) {
 }
 
 bool FSM::check_aux(std::string str, int i, Node* act_node) {
-
-  /*if(act_node == end && i == str.length()) {
-    return true;
-  }
-
-  uint64_t node_num_edges = act_node->get_num_edges();
-  Edge* edges = act_node->get_edges();
-  bool res = false;
-  for(uint64_t j = 0; j < node_num_edges; j++) {
-    if(i < str.length() && !edges[j].has_f && edges[j].transition == str[i]){
-      res = check_aux(str, i + 1, edges[j].dest) || res;
-    } else if(i < str.length() && edges[j].has_f && edges[j].transition <= str[i] && str[i] <= edges[j].transition_f) { 
-      res = check_aux(str, i + 1, edges[j].dest) || res;
-    } else if(edges[j].transition == '$') {
-      res = check_aux(str, i, edges[j].dest) || res;
-    }
-  }*/
   uint64_t max_size_queue = 1000;
   uint64_t front = 0;
   uint64_t back = 0;
