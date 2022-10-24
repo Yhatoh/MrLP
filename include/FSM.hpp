@@ -5,6 +5,8 @@ typedef struct Node Node;
 
 struct Edge {
   char transition;
+  char transition_f;
+  bool has_f;
   Node* dest;
 };
 
@@ -22,7 +24,7 @@ class Node {
 
     ~Node();
 
-    void add_edge(char transition, Node* dest);
+    void add_edge(Node* dest, char transition, char transition_f, bool has_f);
     
     // getters
     Edge* get_edges();
@@ -34,6 +36,11 @@ class Node {
     void set_num_edges(uint64_t num_edges_);
     void set_label(std::string label_);
 
+};
+
+struct NextNode {
+  uint64_t pos_act;
+  Node* next;
 };
 
 struct SubExpr {
