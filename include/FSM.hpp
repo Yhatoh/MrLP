@@ -1,6 +1,4 @@
 #include <iostream>
-#include <map>
-#include <memory>
 #include <string>
 
 typedef struct Node Node;
@@ -21,6 +19,8 @@ class Node {
   public:
     Node();
     Node(std::string label, uint64_t num_edges);
+
+    ~Node();
 
     void add_edge(char transition, Node* dest);
     
@@ -44,8 +44,6 @@ struct SubExpr {
 
 class FSM {
   private:
-    //std::map< std::string, 
-    //          std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > > subexpr;
     uint64_t amount_expr;
     SubExpr* subexpr;
     bool check_aux(std::string str, int i, Node* act_node);

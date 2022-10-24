@@ -1,9 +1,6 @@
 // Cpp include(s)
 #include <iostream>
-#include <map>
-#include <memory>
 #include <set>
-#include <queue>
 #include <stack>
 #include <string>
 
@@ -19,6 +16,10 @@ Node::Node() : max_edges(initial_max_edges) {
 Node::Node(std::string label_, uint64_t num_edges_) : 
   label(label_), num_edges(num_edges_), max_edges(initial_max_edges) {
   edges = new Edge[initial_max_edges];
+}
+
+Node::~Node() {
+  delete[] edges;
 }
 
 void Node::add_edge(char transition, Node* dest) {
@@ -79,12 +80,17 @@ FSM::FSM(std::string expr) {
 
 FSM::~FSM() {
   clear();
+  delete[] subexpr;
+  delete start;
+  delete end;
 }
 
 void FSM::clear() {
-  /*std::queue< Node > next;
-  next.push(*(start));
- 
+  Node* next[num_states];
+  uint64_t next_insert = 0;
+  uint64_t next_pop = 0;
+
+  next[next_insert++] = start;
   Node* to_erase[num_states];
   
   uint64_t count = 0;
@@ -92,22 +98,24 @@ void FSM::clear() {
 
   std::set< std::string > visited;
   while(count < num_states){
-    Node act = next.front();
-    Edge* edges = act.get_edges();
-    for(uint64_t i = 0; i < act.get_num_edges(); i++) {
+    Node* act = next[next_pop++];
+    Edge* edges = act->get_edges();
+    for(uint64_t i = 0; i < act->get_num_edges(); i++) {
       Edge edge = edges[i];
       if(visited.find(edge.dest->get_label()) == visited.end()) {
         visited.insert(edge.dest->get_label());
-        next.push(*(edges[i].dest));
+        std::cout << edge.dest->get_label() << "\n";
+        next[next_insert++] = edges[i].dest;
         to_erase[count++] = edges[i].dest;
       }
     }
-    next.pop();
   }
+  std::cout << "-----\n";
   for(uint64_t i = 0; i < num_states; i++) {
-    delete[] to_erase[i]->get_edges();
-    delete to_erase[i];  
-  }*/
+    Node* aux = to_erase[i];
+    if(aux->get_label() != "0_S" && aux->get_label() != "0_F")
+      delete aux;  
+  }
 }
 
 void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, Node* act_end) {
@@ -130,8 +138,6 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
       std::string tag = "$" + std::to_string(count_subexpr) + "$";
       
       expr.replace(l, i - l + 1, tag); 
-      //std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > pnodes(substart, subend);
-      //subexpr.insert(std::pair< std::string, std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > >(tag, pnodes));
       
       SubExpr* aux = new SubExpr[amount_expr + 1];
       for(uint64_t i = 0; i < amount_expr; i++) {
@@ -143,6 +149,7 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
       to_add.start = substart;
       to_add.end = subend;
       aux[amount_expr++] = to_add;
+      subexpr = aux;
 
       count_subexpr++;
       st.pop();
@@ -197,7 +204,6 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
 
       i++;
     } else if(i + 2 < expr.length() && i + 1 < expr.length() && expr[i] == '$' && expr[i + 2] == '$') {
-      //std::pair< std::shared_ptr< Node >, std::shared_ptr< Node > > subfsm = subexpr.find(expr.substr(i, 3))->second;
       SubExpr subfsm;
       std::string to_compare = expr.substr(i, 3);
       for(uint64_t i = 0; i < amount_expr; i++) {
@@ -207,11 +213,7 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
         }
       }
 
-      Node* aux = new Node();
-      aux->set_label(subfsm.start->get_label());
-      aux->set_num_edges(subfsm.start->get_num_edges());
-      aux->set_edges(subfsm.start->get_edges(), aux->get_num_edges());
-
+      Node* aux = subfsm.start;
       act->add_edge('$', aux);
       
       num_edges++;
@@ -275,22 +277,25 @@ bool FSM::check_aux(std::string str, int i, Node* act_node) {
 }
 
 std::ostream& operator<<(std::ostream& os, const FSM &fsm) {
-  std::queue< Node > next;
-  next.push(*(fsm.start));
+  //std::queue< Node > next;
+  Node* next[fsm.num_states];
+  uint64_t next_insert = 0;
+  uint64_t next_pop = 0;
+
+  next[next_insert++] = fsm.start;
   std::set< std::string > visited;
-  while(!next.empty()){
-    Node act = next.front();
-    std::cout << "node: " << act.get_label() << " transitions: ";
-    Edge* edges = act.get_edges();
-    for(uint64_t i = 0; i < act.get_num_edges(); i++) {
+  while(next_pop < fsm.num_states){
+    Node* act = next[next_pop++];
+    std::cout << "node: " << act->get_label() << " transitions: ";
+    Edge* edges = act->get_edges();
+    for(uint64_t i = 0; i < act->get_num_edges(); i++) {
       Edge edge = edges[i];
       std::cout << "(" << edge.transition << "," << edge.dest->get_label() << ") ";
       if(visited.find(edge.dest->get_label()) == visited.end()) {
         visited.insert(edge.dest->get_label());
-        next.push(*(edges[i].dest));
+        next[next_insert++] = edges[i].dest;
       }
     }
-    next.pop();
     std::cout << "\n";
   }
   return os; 

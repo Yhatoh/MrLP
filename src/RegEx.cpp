@@ -15,7 +15,6 @@ RegEx::~RegEx() {
 }
 
 void RegEx::clear() {
-  fsm->clear();
   delete fsm;
 }
 
