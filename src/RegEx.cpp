@@ -53,12 +53,12 @@ uint64_t RegEx::match(std::string str, uint64_t i) {
   return str.length();
 }
 
-std::vector< uint64_t > RegEx::full_match(std::string str){
-  std::vector< uint64_t > ret;
+std::vector< std::pair< uint64_t, uint64_t > > RegEx::full_match(std::string str){
+  std::vector< std::pair< uint64_t, uint64_t > > ret;
   for(uint64_t j = 0; j < str.length(); j++) {
     for(uint64_t k = str.length() - j; k > 0; k--) {
       if(fsm->check(str.substr(j, k))) {
-        ret.push_back(j);
+        ret.push_back(std::pair< uint64_t, uint64_t >(j, k));
         j += k - 1;
         break;
       } 

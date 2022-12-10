@@ -27,5 +27,5 @@ class RegEx {
     uint64_t match(std::string str, uint64_t i);
 
     // get a vector of positions of all the matches of expr in str
-    std::vector< uint64_t > full_match(std::string str);
+    std::vector< std::pair< uint64_t, uint64_t > > full_match(std::string str);
 };

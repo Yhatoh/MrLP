@@ -13,8 +13,8 @@ int main(){
   std::cout << er.first_match(str) << "\n";
   std::cout << er.match(str, 3) << "\n";
   std::cout << er.match(str, 7) << "\n";
-  for(uint64_t e : er.full_match(str)) {
-    std::cout << e << " "; 
+  for(auto e : er.full_match(str)) {
+    std::cout << "(" << e.first << "," << e.second << ") "; 
   }
   std::cout << "\n";
   std::string re2 = "h[a-z]*l";

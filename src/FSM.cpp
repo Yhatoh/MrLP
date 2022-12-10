@@ -77,29 +77,6 @@ FSM::FSM(std::string expr) {
   subexpr = new SubExpr[0];
   start = new Node();
   end = new Node();
-
-  /*
-  // replace range expr like a-b
-  for(uint64_t i = 0; i < expr.length(); i++) {
-    if(expr[i] == '-') {
-      char init = expr[i - 1];
-      char end = expr[i + 1];
-      
-      std::string new_str = "(";
-      new_str += init;
-      init += 1;
-      while(init != end) {
-        new_str += "|";
-        new_str += init++;
-      }
-      new_str += "|";
-      new_str += end;
-
-      new_str += ")";
-      expr.replace(i - 2, 5, new_str);
-    }
-  }
-  */
   create_fsm("0_", expr, start, end);
 }
 

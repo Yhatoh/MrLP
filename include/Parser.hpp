@@ -6,15 +6,8 @@
 
 class Parser {
   private:
-    RegEx id("[a-z]([A-Z]|[1-2])*");
-    RegEx num("[1-9][0-9]*");
-    RegEx binop("+|-|*|/");
-    RegEx print("print");
-
-    ParsedExpr expr;
+    ParsedExpr* expr;
   public:
-    Parser();
-
+    Parser(std::string to_parse);
     ParsedExpr get_expr();
-
-}
+};
