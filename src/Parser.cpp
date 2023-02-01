@@ -9,6 +9,7 @@ Parser::Parser(std::string to_parse) {
   RegEx id("[a-z]([A-Z]|[1-2])*");
   RegEx num("[1-9][0-9]*");
   RegEx binop("+|-|*|/");
+  RegEx eq("=");
   RegEx print("print");
   RegEx espace(" *");
   
@@ -19,4 +20,6 @@ Parser::Parser(std::string to_parse) {
   }
 
   std::cout << to_parse << "\n";
+  std::cout << binop.first_match(to_parse) << "\n";
+  std::cout << to_parse[binop.first_match(to_parse)] << "\n";
 }

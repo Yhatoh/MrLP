@@ -3,6 +3,7 @@
 #include <RegEx.hpp>
 
 int main(){
+  /*
   std::string re = "ho*la+|(a|s)+d*f";
   FSM fsm(re);
   std::cout << fsm;
@@ -24,5 +25,6 @@ int main(){
   std::cout << (fsm2.check("hbal") ? "Bien" : "Mal") << "\n";
   std::cout << fsm.num_edges << "\n";
   std::cout << fsm.num_states << "\n";
+  */
   return 0;
 }
