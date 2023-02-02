@@ -1,6 +1,6 @@
 #include <Parser.hpp>
 
 int main() {
-  Parser parser("var =      secondvar    + 2");
+  Parser parser("var =      secondvar* 34  + 2 / 1282");
   return 0;
 }

@@ -166,7 +166,15 @@ void FSM::create_fsm(std::string tag_scope, std::string expr, Node* act_start, N
   Node* act = act_start;
   Node* dest;
   for(uint64_t i = 0; i < expr.length(); i++) {
-    if(i + 1 < expr.length() && expr[i + 1] == '*') {
+    if(i + 1 < expr.length() && expr[i] == '\\') {
+      i++;
+      dest = new Node(tag_scope + std::to_string(count_node++), 0);
+      act->add_edge(dest, expr[i]);
+      act = dest;
+
+      num_states++;
+      num_edges++;
+    } else if(i + 1 < expr.length() && expr[i + 1] == '*') {
       dest = act;
       act->add_edge(dest, expr[i]);
       act = dest;
